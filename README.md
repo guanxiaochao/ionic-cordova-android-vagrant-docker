@@ -1,29 +1,43 @@
+Ionic Cordova Android Docker Image
+==================================
 [![Stories in Ready](https://badge.waffle.io/nicopace/ionic-cordova-android-vagrant-docker.png?label=ready&title=Ready)](https://waffle.io/nicopace/ionic-cordova-android-vagrant-docker)
-Ionic Cordova Android Vagrant Docker
-====================================
 
-A Vagrant and Docker image complete with Ionic, Node, Cordova, and Android installed for quick development of apps.
+A Docker image complete with Ionic, Node, Cordova, and Android installed for quick development of apps.
 
-To install, download and install [Vagrant](https://www.vagrantup.com/downloads.html) for your platform, then download and install [VirtualBox](http://virtualbox.org/).
+To use it, you will require Docker in your system. To install Docker, go here: http://docs.docker.com/installation/
 
-Once Vagrant and VirtualBox are installed, you can download the latest release of this GitHub repo, and unzip it. `cd` into the unzipped folder and run:
-
+To run the VM, execute this:
 ```bash
-$ vagrant up
-$ vagrant ssh
+CID=$(docker run -d nicopace/ionic-cordova-android-vagrant-)
 ```
 
-This will download and install the image, and then go through the dependencies and install them one by one. `vagrant ssh` will connect you to the image and give you a bash prompt. Once everything completes, you'll have a working box to build your apps on Android.
+to go inside the VM:
+```bash
+IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' $CID)
+ssh app@$IP # password: app
+```
 
-The image also has support for connected USB Android devices. To test whether devices are connected, you can run (from the box):
+Inside the VM, you have all the tools to work with... for example:
+```bash
+PROJECT=https://github.com/nicopace/congress-mobile.git
+PROJECT_NAME=congress-mobile
+git clone $PROJECT
+cd $PROJECT_NAME
+ionic serve
+```
+
+The image also has support for connected USB Android devices.
+In order to have access to usb devices, you have to run the image in privileged mode.
+To do so, add the parameter '-privileged' to the run command.
+It should be:
 
 ```bash
-$ sudo /home/vagrant/android-sdk-linux/platform-tools/adb devices
+$ CID=$(docker run -d nicopace/ionic-cordova-android-vagrant-)
 ```
 
 If that does not work, or shows `????? permissions`, then run:
 
 ```bash
-sudo /home/vagrant/android-sdk-linux/platform-tools/adb kill-server
-sudo /home/vagrant/android-sdk-linux/platform-tools/adb start-server
+sudo /opt/android-sdk-linux/platform-tools/adb kill-server
+sudo /opt/android-sdk-linux/platform-tools/adb start-server
 ```
